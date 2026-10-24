@@ -41,6 +41,27 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(itineraries_bp)
 
+    # Root endpoint for browser visits & discovery
+    @app.route("/", methods=["GET"])
+    def root_index():
+        fe_url = app.config.get("FRONTEND_URL", "http://localhost:5173")
+        return jsonify({
+            "service": "TripGenius AI — Personalized Travel Itinerary Planner API",
+            "status": "online",
+            "version": "1.0.0",
+            "frontend_url": fe_url,
+            "message": "Welcome to TripGenius AI Backend. To use the interactive travel planner UI, visit the frontend_url in your browser.",
+            "endpoints": {
+                "health": "/api/health",
+                "generate_itinerary": "POST /api/itineraries/generate",
+                "refine_itinerary": "POST /api/itineraries/refine",
+                "list_itineraries": "GET /api/itineraries",
+                "save_itinerary": "POST /api/itineraries",
+                "auth_register": "POST /api/auth/register",
+                "auth_login": "POST /api/auth/login"
+            }
+        }), 200
+
     # Global Error Handlers
     @app.errorhandler(400)
     def handle_bad_request(e):

@@ -10,10 +10,14 @@ class Config:
     DEBUG = FLASK_ENV == "development"
 
     # Database Configuration
-    # Neon provides DATABASE_URL in postgres://... format which SQLAlchemy requires as postgresql://...
+    # Neon provides DATABASE_URL in postgres://... format.
+    # SQLAlchemy 2.1+ defaults to psycopg (v3) driver; explicitly use psycopg2 since
+    # the project depends on psycopg2-binary.
     raw_db_url = os.getenv("DATABASE_URL", "sqlite:///tripgenius.db")
     if raw_db_url.startswith("postgres://"):
-        raw_db_url = raw_db_url.replace("postgres://", "postgresql://", 1)
+        raw_db_url = raw_db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+    elif raw_db_url.startswith("postgresql://"):
+        raw_db_url = raw_db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
     
     SQLALCHEMY_DATABASE_URI = raw_db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
